@@ -1,6 +1,8 @@
 const fs = require("fs");
 const { parseString } = require("xml2js");
 const path = require("path");
+const https = require("node:https");
+var chatChannelNumber = "573176995294";
 
 const validarCobertura = async (req, res) => {
   const { longitud, latitud } = req.query;
@@ -102,6 +104,92 @@ const validarCobertura = async (req, res) => {
   initMap();
 };
 
+const sendTemplateSinCobertura = async (req, res) => {
+  const params = req.query ? req.query : "";
+
+  let options = {
+    hostname: "go.botmaker.com",
+    path: "/api/v1.0/intent/v2Multiple",
+    method: "POST",
+    headers: {
+      "access-token":
+        "eyJhbGciOiJIUzUxMiJ9.eyJidXNpbmVzc0lkIjoiSW5zaXRlbCIsIm5hbWUiOiJTYW50aWFnbyBPcnRpeiIsImFwaSI6dHJ1ZSwiaWQiOiJoMVZEeU9teGdSUWs0NllpVVpJWXpwVVp6NTUyIiwiZXhwIjoxODE2NDQ0MDA3LCJqdGkiOiJoMVZEeU9teGdSUWs0NllpVVpJWXpwVVp6NTUyIn0.jA9rxXjxemrBY9jemvjEcQtdd9IaF5iRs0V1ngVV-fBpI3GRmWvyI1lEO9mZeGxF9WqNhvUsHRHgGwDwemJ6sQ",
+      "Content-Type": "application/json",
+    },
+  };
+  data = JSON.stringify({
+    items: [
+      {
+        chatPlatform: "whatsapp",
+        chatChannelNumber: chatChannelNumber,
+        platformContactId: "57" + params.cel,
+        ruleNameOrId: "sin_cobertura",
+
+        params: {
+          nombreCompleto: params.nombreCompleto,
+        },
+      },
+    ],
+  });
+  const require = https.request(options, (response) => {
+    response.on("data", (d) => {
+      JSON.parse(d.toString("utf-8")).problems == null
+        ? res.json({ msg: "OK" })
+        : res.json({ msg: "fail" });
+    });
+  });
+
+  require.on("error", (error) => {
+    console.error(error);
+  });
+
+  require.write(data);
+  require.end();
+};
+const sendTemplateCoberturaOk = async (req, res) => {
+  const params = req.query ? req.query : "";
+
+  let options = {
+    hostname: "go.botmaker.com",
+    path: "/api/v1.0/intent/v2Multiple",
+    method: "POST",
+    headers: {
+      "access-token":
+        "eyJhbGciOiJIUzUxMiJ9.eyJidXNpbmVzc0lkIjoiSW5zaXRlbCIsIm5hbWUiOiJTYW50aWFnbyBPcnRpeiIsImFwaSI6dHJ1ZSwiaWQiOiJoMVZEeU9teGdSUWs0NllpVVpJWXpwVVp6NTUyIiwiZXhwIjoxODE2NDQ0MDA3LCJqdGkiOiJoMVZEeU9teGdSUWs0NllpVVpJWXpwVVp6NTUyIn0.jA9rxXjxemrBY9jemvjEcQtdd9IaF5iRs0V1ngVV-fBpI3GRmWvyI1lEO9mZeGxF9WqNhvUsHRHgGwDwemJ6sQ",
+      "Content-Type": "application/json",
+    },
+  };
+  data = JSON.stringify({
+    items: [
+      {
+        chatPlatform: "whatsapp",
+        chatChannelNumber: chatChannelNumber,
+        platformContactId: "57" + params.cel,
+        ruleNameOrId: "cobertura_ok",
+
+        params: {
+          nombreCompleto: params.nombreCompleto,
+        },
+      },
+    ],
+  });
+  const require = https.request(options, (response) => {
+    response.on("data", (d) => {
+      JSON.parse(d.toString("utf-8")).problems == null
+        ? res.json({ msg: "OK" })
+        : res.json({ msg: "fail" });
+    });
+  });
+
+  require.on("error", (error) => {
+    console.error(error);
+  });
+
+  require.write(data);
+  require.end();
+};
 module.exports = {
   validarCobertura,
+  sendTemplateSinCobertura,
+  sendTemplateCoberturaOk,
 };
